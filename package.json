@@ -1,9 +1,15 @@
 {
   "name": "quick-search-plus",
   "displayName": "quick-search-plus",
-  "description": "this is a quick search plugin for vscode!",
-  "version": "0.0.1",
+  "description": "this is a useful quick search plugin for vscode!",
+  "version": "0.0.2",
   "publisher": "Bigonion",
+  "icon": "assets/img/icon.png",
+  "bugs": {"url": "https://github.com/LiWeny16/quick-search-plus.git/issues"},
+  "repository": {
+		"type": "git",
+		"url": "https://github.com/LiWeny16/quick-search-plus.git"
+	},
   "engines": {
     "vscode": "^1.78.0"
   },
