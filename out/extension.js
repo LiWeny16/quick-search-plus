@@ -12,13 +12,13 @@ const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 const httpAgent = new http.Agent({});
 // let ques: string = "hello";
 async function activate(context) {
-    try {
-        vscode.window.showInformationMessage("欢迎来到Onion的VScode插件!");
-    }
-    catch (e) {
-        console.log(e);
-    }
-    let disposable = vscode.commands.registerCommand("quick-search-plus.qs", async () => {
+    // try {
+    //   vscode.window.showInformationMessage("欢迎来到Onion的VScode插件!");
+    // } catch (e) {
+    //   console.log(e);
+    // }
+    let quickSearchCommon = vscode.commands.registerCommand("quick-search-plus.qs", async () => {
+        // choices
         const list = ["快速搜索", "热搜", "About Me"];
         const inputs = await vscode.window.showQuickPick(list, {
             matchOnDetail: true,
@@ -34,7 +34,7 @@ async function activate(context) {
                 password: false,
                 ignoreFocusOut: true,
                 placeHolder: "你到底想输入什么？",
-                prompt: "赶紧输入，不输入就赶紧滚", // 在输入框下方的提示信息
+                prompt: "赶紧输入，不输入就关掉！", // 在输入框下方的提示信息
                 // validateInput:function(text){return text;} // 对输入内容进行验证并返回
             })
                 .then(function (msg) {
@@ -66,31 +66,63 @@ async function activate(context) {
             });
         }
     });
-    context.subscriptions.push(disposable);
+    context.subscriptions.push(quickSearchCommon);
+    let quickGPT = vscode.commands.registerCommand("quick-search-plus.qGPT", async () => {
+        vscode.window
+            .showInputBox({
+            password: false,
+            ignoreFocusOut: false,
+            placeHolder: "OPENAI READY",
+            prompt: "请输入你的问题", // 在输入框下方的提示信息
+            // validateInput:function(text){return text;} // 对输入内容进行验证并返回
+        })
+            .then((e) => {
+            try {
+                if (e) {
+                    askGPT(e).then((e) => {
+                        // console.log(e.data.choices[0]);
+                        // console.log(e.data.choices[0].message.content);
+                        vscode.window.showInformationMessage(e.data.choices[0].message.content);
+                    });
+                }
+            }
+            catch (error) {
+                vscode.window.showWarningMessage(error);
+            }
+        });
+    });
+    context.subscriptions.push(quickGPT);
 }
 exports.activate = activate;
 // This method is called when your extension is deactivated
 function deactivate() { }
 exports.deactivate = deactivate;
 function askGPT(ques) {
-    let answer;
-    const req = https.request({
-        hostname: "api.bigonion.cn",
-        path: "/",
-        port: 443,
+    return (0, axios_1.default)({
+        headers: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            "Content-Type": "application/json",
+        },
+        httpsAgent: httpsAgent,
         method: "POST",
-        rejectUnauthorized: false,
-    }, (res) => {
-        // res.on("data", (e) => {
-        //   console.log(JSON.parse(e.toString()).bot);
-        //   answer = JSON.parse(e.toString()).bot.toString();
-        // });
+        url: "https://q.icodef.com/v1/chat/completions",
+        data: `{
+  "token": "6spM5IRmrXskQHMA",
+  "model":"gpt-3.5-turbo-0301",
+  "stream":false,
+  "ret_usage":false,
+  "messages": [
+    {
+      "role": "user",
+      "content": "${ques}",
+      "createtime": ${Date.now()},
+      "name": "Onion"
+    }
+  ],
+  "use_context": true
+}
+`,
     });
-    req.write(ques, (e) => {
-        console.log(e);
-    });
-    req.end();
-    return answer;
 }
 async function axiosGPT(ques) {
     const a = await (0, axios_1.default)({

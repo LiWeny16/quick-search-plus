@@ -2,7 +2,7 @@
   "name": "quick-search-plus",
   "displayName": "quick-search-plus",
   "description": "this is a useful quick search plugin for vscode!",
-  "version": "0.0.2",
+  "version": "0.1.2",
   "publisher": "Bigonion",
   "icon": "assets/img/icon.png",
   "bugs": {"url": "https://github.com/LiWeny16/quick-search-plus.git/issues"},
@@ -24,8 +24,21 @@
         "command": "quick-search-plus.qs",
         "title": "quick Search",
         "shortTitle": "qs"
+      },
+      {
+        "command": "quick-search-plus.qGPT",
+        "title": "quick Search GPT3.5",
+        "shortTitle": "qsGPT"
       }
-    ]
+    ],
+    "keybindings": [
+			{
+				"command": "quick-search-plus.qGPT",
+				"key": "Ctrl+Alt+G",
+				"mac": "Cmd+Alt+g",
+				"when": "editorTextFocus"
+			}
+		]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
