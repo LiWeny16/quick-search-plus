@@ -12,11 +12,13 @@ const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 const httpAgent = new http.Agent({});
 // let ques: string = "hello";
 async function activate(context) {
-    // try {
-    //   vscode.window.showInformationMessage("欢迎来到Onion的VScode插件!");
-    // } catch (e) {
-    //   console.log(e);
-    // }
+    try {
+        let a = getConfigValue("GPT4.0token");
+        vscode.window.showInformationMessage(a);
+    }
+    catch (e) {
+        console.log(e);
+    }
     let quickSearchCommon = vscode.commands.registerCommand("quick-search-plus.qs", async () => {
         // choices
         const list = ["快速搜索", "热搜", "About Me"];
@@ -83,6 +85,9 @@ async function activate(context) {
                         // console.log(e.data.choices[0]);
                         // console.log(e.data.choices[0].message.content);
                         vscode.window.showInformationMessage(e.data.choices[0].message.content);
+                        // let ter = vscode.window.createTerminal()
+                        // ter.show()
+                        vscode.window.setStatusBarMessage(e.data.choices[0].message.content);
                     });
                 }
             }
@@ -133,5 +138,8 @@ async function axiosGPT(ques) {
         httpAgent: httpAgent,
     });
     return a;
+}
+function getConfigValue(name) {
+    return vscode.workspace.getConfiguration("bigonion").get(name);
 }
 //# sourceMappingURL=extension.js.map

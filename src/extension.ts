@@ -10,11 +10,13 @@ const httpAgent = new http.Agent({});
 // let ques: string = "hello";
 
 export async function activate(context: vscode.ExtensionContext) {
-  // try {
-  //   vscode.window.showInformationMessage("欢迎来到Onion的VScode插件!");
-  // } catch (e) {
-  //   console.log(e);
-  // }
+  try {
+    let a:any = getConfigValue("GPT4.0token")
+    vscode.window.showInformationMessage(a);
+  } catch (e) {
+    console.log(e);
+  }
+
 
   let quickSearchCommon = vscode.commands.registerCommand(
     "quick-search-plus.qs",
@@ -91,6 +93,11 @@ export async function activate(context: vscode.ExtensionContext) {
                 vscode.window.showInformationMessage(
                   e.data.choices[0].message.content
                 );
+                // let ter = vscode.window.createTerminal()
+                // ter.show()
+                vscode.window.setStatusBarMessage(
+                  e.data.choices[0].message.content
+                );
               });
             }
           } catch (error: any) {
@@ -142,4 +149,8 @@ async function axiosGPT(ques: string) {
     httpAgent: httpAgent,
   });
   return a;
+}
+
+function getConfigValue(name:string):any {
+  return vscode.workspace.getConfiguration("bigonion").get(name);
 }
