@@ -1,16 +1,37 @@
-# Quick Search Plugin
+# Quick Search Plus
 
-这是大聪花的第一个Vscode插件
 
-## 用法
+---
+
+## 介绍
+这是一个快速搜索插件
++ 快速搜索必应
++ 快速查看热搜
++ 快速搜索ChatGpt3.5/4.0
+
+
+---
+
+## 普通用法
 
 按下f1，输入quick Search然后回车！ 
 
+---
 
+## 进阶用法
+
+### Chatgpt3.5
+ctrl + alt + G快捷键使用 
+### Chatgpt4.0
+内测中...
+
+---
 
 ## 致谢
-+ 感谢一之哥哥
-+ 翻译
++ 感谢一之哥哥=>API来源[Go 题库](https://q.icodef.com/)，大家多多支持
+
+
+---
 
 ## 关于
 

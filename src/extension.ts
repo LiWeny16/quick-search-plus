@@ -3,6 +3,7 @@ import axios, { AxiosHeaders } from "axios";
 import * as https from "https";
 import * as http from "http";
 import "./extension";
+import * as jwt from "jsonwebtoken";
 // 解决https证书报错
 // axios在vscode里不行
 const httpsAgent = new https.Agent({ rejectUnauthorized: false });
@@ -11,12 +12,10 @@ const httpAgent = new http.Agent({});
 
 export async function activate(context: vscode.ExtensionContext) {
   try {
-    let a:any = getConfigValue("GPT4.0token")
-    vscode.window.showInformationMessage(a);
+    // vscode.window.showInformationMessage(a);
   } catch (e) {
     console.log(e);
   }
-
 
   let quickSearchCommon = vscode.commands.registerCommand(
     "quick-search-plus.qs",
@@ -70,9 +69,6 @@ export async function activate(context: vscode.ExtensionContext) {
       }
     }
   );
-
-  context.subscriptions.push(quickSearchCommon);
-
   let quickGPT = vscode.commands.registerCommand(
     "quick-search-plus.qGPT",
     async () => {
@@ -86,33 +82,77 @@ export async function activate(context: vscode.ExtensionContext) {
         })
         .then((e) => {
           try {
+            // e 是问题
             if (e) {
-              askGPT(e).then((e: any) => {
+              thinkEvent(true)//思考
+              askGPT(e, "gpt-3.5-turbo-0301").then((e: any) => {
                 // console.log(e.data.choices[0]);
-                // console.log(e.data.choices[0].message.content);
                 vscode.window.showInformationMessage(
                   e.data.choices[0].message.content
                 );
-                // let ter = vscode.window.createTerminal()
-                // ter.show()
-                vscode.window.setStatusBarMessage(
-                  e.data.choices[0].message.content
-                );
+                thinkEvent(false)//结束思考
               });
             }
           } catch (error: any) {
-            vscode.window.showWarningMessage(error);
+            console.log(error);
           }
         });
     }
   );
+  let quickGPT4 = vscode.commands.registerCommand(
+    "quick-search-plus.qGPT4.0",
+    async () => {
+      let _token_: any = getConfigValue("GPT4.0token");
+      try {
+        if (!_token_ || !normalDecode(_token_, "iloveJavascript&")) {
+          vsAlert("请填入正确的token");
+          return;
+        }
+      } catch (error) {
+        vsAlert("请填入正确的token");
+        return;
+      }
+
+      vscode.window
+        .showInputBox({
+          password: false, // 输入内容是否是密码
+          ignoreFocusOut: false, // 默认false，设置为true时鼠标点击别的地方输入框不会消失
+          placeHolder: "OPENAI READY", // 在输入框内的提示信息
+          prompt: "请输入你的问题", // 在输入框下方的提示信息
+          // validateInput:function(text){return text;} // 对输入内容进行验证并返回
+        })
+        .then((e) => {
+          try {
+            if (e) {
+              thinkEvent(true)//思考
+              askGPT(e, normalDecode(_token_, "iloveJavascript&").type).then(
+                (e: any) => {
+                  // console.log(e.data.choices[0]);
+                  vscode.window.showInformationMessage(
+                    e.data.choices[0].message.content
+                  );
+                  thinkEvent(false)//结束思考
+                }
+              );
+            }
+          } catch (error: any) {
+            console.log(error);
+          }
+        });
+    }
+  );
+
+  // 注册命令区
+  context.subscriptions.push(quickSearchCommon);
   context.subscriptions.push(quickGPT);
+  context.subscriptions.push(quickGPT4);
 }
 
 // This method is called when your extension is deactivated
 export function deactivate() {}
 
-function askGPT(ques: string): Promise<string> {
+function askGPT(ques: string, token?: string): Promise<any> {
+  // token=token?"gpt-3.5-turbo-0301":""
   return axios({
     headers: {
       // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -123,7 +163,7 @@ function askGPT(ques: string): Promise<string> {
     url: "https://q.icodef.com/v1/chat/completions",
     data: `{
   "token": "6spM5IRmrXskQHMA",
-  "model":"gpt-3.5-turbo-0301",
+  "model":"${token}",
   "stream":false,
   "ret_usage":false,
   "messages": [
@@ -151,6 +191,34 @@ async function axiosGPT(ques: string) {
   return a;
 }
 
-function getConfigValue(name:string):any {
+/**
+ * @description getVscode Config
+ * @param name
+ * @returns config value
+ */
+function getConfigValue(name: string): any {
   return vscode.workspace.getConfiguration("bigonion").get(name);
+}
+
+/**
+ * @description JWT
+ */
+function normalDecode(token: string, secret: string): any {
+  let decoded = jwt.verify(token, secret);
+  // console.log(decoded)
+  return decoded;
+}
+
+function vsAlert(e: any) {
+  vscode.window.showInformationMessage(e);
+}
+
+function thinkEvent(startOrEnd:boolean){
+  let dots = "...";
+  // start 1 end 0
+  if(startOrEnd){
+    vscode.window.setStatusBarMessage("chatGPT is thinking" + dots);
+  }else{
+    vscode.window.setStatusBarMessage(" ");
+  }
 }
